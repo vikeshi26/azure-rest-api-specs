@@ -1,1 +1,1 @@
-zombie, Microsoft.Zombie
+advisor, Microsoft.Advisor
