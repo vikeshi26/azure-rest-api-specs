@@ -1,1 +1,1 @@
-advisor, Microsoft.Advisor
+batch, Microsoft.Batch
