@@ -22,6 +22,7 @@ import "./PrivateLinkResource.tsp";
 import "./PrivateEndpointConnection.tsp";
 import "./Pool.tsp";
 import "./NetworkSecurityPerimeterConfiguration.tsp";
+import "./Schedule.tsp";
 import "./routes.tsp";
 
 using TypeSpec.Rest;
