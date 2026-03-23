@@ -1,0 +1,182 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Azure AgFoodPlatform Resource Provider",
+    "description": "The service for managing agricultural data.",
+    "version": "2026-01-01-preview"
+  },
+  "host": "management.azure.com",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "azure_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "flow": "implicit",
+      "description": "Azure Active Directory OAuth2 Flow",
+      "scopes": {
+        "user_impersonation": "impersonate your user account"
+      }
+    }
+  },
+  "paths": {
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.AgFoodPlatform/cropAnalytics/{cropAnalyticsName}": {
+      "get": {
+        "tags": [
+          "CropAnalytics"
+        ],
+        "operationId": "CropAnalytics_Get",
+        "description": "Gets a crop analytics resource.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupParameter"
+          },
+          {
+            "name": "cropAnalyticsName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the crop analytics resource."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CropAnalyticsResource"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CropAnalytics"
+        ],
+        "operationId": "CropAnalytics_CreateOrUpdate",
+        "description": "Creates or updates a crop analytics resource.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupParameter"
+          },
+          {
+            "name": "cropAnalyticsName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the crop analytics resource."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CropAnalyticsResource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CropAnalyticsResource"
+            }
+          },
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/CropAnalyticsResource"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CropAnalyticsResource": {
+      "type": "object",
+      "description": "A crop analytics resource.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Resource ID."
+        },
+        "name": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Resource name."
+        },
+        "type": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Resource type."
+        },
+        "location": {
+          "type": "string",
+          "description": "Resource location."
+        },
+        "properties": {
+          "$ref": "#/definitions/CropAnalyticsProperties"
+        }
+      },
+      "x-ms-azure-resource": true
+    },
+    "CropAnalyticsProperties": {
+      "type": "object",
+      "description": "Crop analytics properties.",
+      "properties": {
+        "cropType": {
+          "type": "string",
+          "description": "The type of crop being analyzed."
+        },
+        "provisioningState": {
+          "type": "string",
+          "readOnly": true,
+          "description": "The provisioning state."
+        }
+      }
+    }
+  },
+  "parameters": {
+    "ApiVersionParameter": {
+      "name": "api-version",
+      "in": "query",
+      "required": true,
+      "type": "string",
+      "description": "Client API version."
+    },
+    "SubscriptionIdParameter": {
+      "name": "subscriptionId",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "Subscription credentials."
+    },
+    "ResourceGroupParameter": {
+      "name": "resourceGroupName",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The name of the resource group."
+    }
+  }
+}
