@@ -1,0 +1,231 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Tiwari",
+    "version": "2025-01-01-preview",
+    "description": "Microsoft.Tiwari Resource Provider management API.",
+    "x-typespec-generated": [
+      {
+        "emitter": "@azure-tools/typespec-autorest"
+      }
+    ]
+  },
+  "schemes": [
+    "https"
+  ],
+  "host": "management.azure.com",
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "security": [
+    {
+      "azure_auth": [
+        "user_impersonation"
+      ]
+    }
+  ],
+  "securityDefinitions": {
+    "azure_auth": {
+      "type": "oauth2",
+      "description": "Azure Active Directory OAuth2 Flow.",
+      "flow": "implicit",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "scopes": {
+        "user_impersonation": "impersonate your user account"
+      }
+    }
+  },
+  "paths": {
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Tiwari/tiwariInsights/{insightName}": {
+      "get": {
+        "operationId": "TiwariInsights_Get",
+        "tags": [
+          "TiwariInsights"
+        ],
+        "description": "Get a TiwariInsight resource.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupNameParameter"
+          },
+          {
+            "name": "insightName",
+            "in": "path",
+            "required": true,
+            "description": "The name of the TiwariInsight resource.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ARM operation completed successfully.",
+            "schema": {
+              "$ref": "#/definitions/TiwariInsightResource"
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "TiwariInsights_CreateOrUpdate",
+        "tags": [
+          "TiwariInsights"
+        ],
+        "description": "Create or update a TiwariInsight resource.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupNameParameter"
+          },
+          {
+            "name": "insightName",
+            "in": "path",
+            "required": true,
+            "description": "The name of the TiwariInsight resource.",
+            "type": "string"
+          },
+          {
+            "name": "resource",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TiwariInsightResource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource updated successfully.",
+            "schema": {
+              "$ref": "#/definitions/TiwariInsightResource"
+            }
+          },
+          "201": {
+            "description": "Resource created successfully.",
+            "schema": {
+              "$ref": "#/definitions/TiwariInsightResource"
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "TiwariInsights_Delete",
+        "tags": [
+          "TiwariInsights"
+        ],
+        "description": "Delete a TiwariInsight resource.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupNameParameter"
+          },
+          {
+            "name": "insightName",
+            "in": "path",
+            "required": true,
+            "description": "The name of the TiwariInsight resource.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource deleted successfully."
+          },
+          "204": {
+            "description": "Resource does not exist."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TiwariInsightResource": {
+      "type": "object",
+      "description": "A TiwariInsight resource.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Resource ID."
+        },
+        "name": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Resource name."
+        },
+        "type": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Resource type."
+        },
+        "location": {
+          "type": "string",
+          "description": "Resource location."
+        },
+        "properties": {
+          "$ref": "#/definitions/TiwariInsightProperties"
+        }
+      },
+      "x-ms-azure-resource": true
+    },
+    "TiwariInsightProperties": {
+      "type": "object",
+      "description": "TiwariInsight resource properties.",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the insight."
+        },
+        "severity": {
+          "type": "string",
+          "description": "Severity level of the insight."
+        },
+        "provisioningState": {
+          "type": "string",
+          "readOnly": true,
+          "description": "The provisioning state."
+        }
+      }
+    }
+  },
+  "parameters": {
+    "ApiVersionParameter": {
+      "name": "api-version",
+      "in": "query",
+      "required": true,
+      "type": "string",
+      "description": "The API version to use for this operation."
+    },
+    "SubscriptionIdParameter": {
+      "name": "subscriptionId",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The ID of the target subscription."
+    },
+    "ResourceGroupNameParameter": {
+      "name": "resourceGroupName",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The name of the resource group."
+    }
+  }
+}
