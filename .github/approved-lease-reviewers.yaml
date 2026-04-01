@@ -1,0 +1,6 @@
+# Approved ARM Lease Reviewers
+# Only GitHub users listed here can create ARM lease files via the workflow.
+# Add GitHub usernames (without @) one per line.
+reviewers:
+  - vikeshi26
+  - tejaswiMinnu

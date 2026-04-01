@@ -1,0 +1,157 @@
+name: Create ARM Lease
+
+on:
+  workflow_dispatch:
+    inputs:
+      org_name:
+        description: "Organization/service name (lowercase, e.g., polarbear, addons, agrifood)"
+        required: true
+        type: string
+      rp_namespace:
+        description: "Resource Provider namespace (e.g., Microsoft.Polarbear)"
+        required: true
+        type: string
+      service_name:
+        description: "Service group name (e.g., Polarbear, Addons, AgFoodPlatform)"
+        required: true
+        type: string
+      duration:
+        description: "Lease duration (default: P180D, max 180 days)"
+        required: false
+        type: string
+        default: "P180D"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-lease:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Check access
+        id: access
+        run: |
+          ACTOR="${{ github.actor }}"
+          echo "Checking access for: $ACTOR"
+
+          if ! command -v yq &> /dev/null; then
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+            sudo chmod +x /usr/local/bin/yq
+          fi
+
+          REVIEWERS=$(yq '.reviewers[]' .github/approved-lease-reviewers.yaml)
+
+          AUTHORIZED=false
+          while IFS= read -r reviewer; do
+            if [ "$reviewer" = "$ACTOR" ]; then
+              AUTHORIZED=true
+              break
+            fi
+          done <<< "$REVIEWERS"
+
+          if [ "$AUTHORIZED" = "false" ]; then
+            echo "::error::User '$ACTOR' is not in the approved lease reviewers list."
+            echo "::error::Add your GitHub username to .github/approved-lease-reviewers.yaml to gain access."
+            exit 1
+          fi
+
+          echo "Access granted for $ACTOR"
+
+      - name: Validate inputs
+        id: validate
+        run: |
+          ORG_NAME="${{ inputs.org_name }}"
+          RP_NAMESPACE="${{ inputs.rp_namespace }}"
+          SERVICE_NAME="${{ inputs.service_name }}"
+          DURATION="${{ inputs.duration }}"
+
+          # Validate org name is lowercase alphanumeric
+          if ! echo "$ORG_NAME" | grep -qE '^[a-z0-9]+$'; then
+            echo "::error::org_name must be lowercase alphanumeric. Got: $ORG_NAME"
+            exit 1
+          fi
+
+          # Validate RP namespace starts with Microsoft.
+          if ! echo "$RP_NAMESPACE" | grep -qE '^Microsoft\.[A-Z][a-zA-Z]+$'; then
+            echo "::error::rp_namespace must match Microsoft.<Name> (e.g., Microsoft.Polarbear). Got: $RP_NAMESPACE"
+            exit 1
+          fi
+
+          # Validate duration format
+          if ! echo "$DURATION" | grep -qiE '^P[0-9]+D$'; then
+            echo "::error::duration must be in P#D format (e.g., P180D). Got: $DURATION"
+            exit 1
+          fi
+
+          # Validate duration <= 180 days
+          DAYS=$(echo "$DURATION" | grep -oE '[0-9]+')
+          if [ "$DAYS" -gt 180 ] || [ "$DAYS" -lt 1 ]; then
+            echo "::error::duration must be between 1 and 180 days. Got: ${DAYS} days"
+            exit 1
+          fi
+
+          # Check if lease already exists
+          LEASE_PATH=".github/arm-leases/${ORG_NAME}/${RP_NAMESPACE}/${SERVICE_NAME}/lease.yaml"
+          if [ -f "$LEASE_PATH" ]; then
+            echo "::error::Lease already exists at $LEASE_PATH"
+            exit 1
+          fi
+
+          echo "lease_path=$LEASE_PATH" >> "$GITHUB_OUTPUT"
+          echo "All inputs validated successfully"
+
+      - name: Create lease file
+        run: |
+          LEASE_PATH="${{ steps.validate.outputs.lease_path }}"
+          START_DATE=$(date +%Y-%m-%d)
+
+          mkdir -p "$(dirname "$LEASE_PATH")"
+
+          cat > "$LEASE_PATH" << EOF
+          lease:
+            resource-provider: ${{ inputs.rp_namespace }}
+            startdate: ${START_DATE}
+            duration: ${{ inputs.duration }}
+            reviewer: "@${{ github.actor }}"
+          EOF
+
+          # Fix indentation (remove leading spaces from heredoc)
+          sed -i 's/^          //' "$LEASE_PATH"
+
+          echo "Created lease file at $LEASE_PATH:"
+          cat "$LEASE_PATH"
+
+      - name: Create branch and PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="lease/${{ inputs.org_name }}-${{ inputs.rp_namespace }}"
+          LEASE_PATH="${{ steps.validate.outputs.lease_path }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH_NAME"
+          git add "$LEASE_PATH"
+          git commit -m "Add ARM lease for ${{ inputs.rp_namespace }}"
+          git push origin "$BRANCH_NAME"
+
+          gh pr create \
+            --title "Add ARM lease for ${{ inputs.rp_namespace }}" \
+            --body "## ARM Lease
+
+          **Resource Provider:** ${{ inputs.rp_namespace }}
+          **Service:** ${{ inputs.service_name }}
+          **Duration:** ${{ inputs.duration }}
+          **Reviewer:** @${{ github.actor }}
+
+          ---
+          _Auto-generated by the Create ARM Lease workflow._" \
+            --base main \
+            --head "$BRANCH_NAME"
